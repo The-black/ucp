@@ -1,0 +1,30 @@
+UCP message types
+
+1.  ucpInitFileSending       <xfer_id> <filename> <recipient> <recipient_filename> <return_port> (From CLI to sender daemon)
+2.  ucpInitFileReceiving     <xfer_id> <filename> <file_size> <cli_host> <cli_port> (from sender to receiver)
+3.  ucpSendFile              <xfer_id>               (From receiver to sender)
+4.  ucpResendFilePacket      <xfer_id> <packet_seq>  (From receiver or CLI to sender)
+5.  ucpReceiveFilePacket     <xfer_id> <packet_seq> <packet_hash> <packet_data> (From sender to receiver)
+6.  ucpReceiveFileHash       <xfer_id> <file_hash>  (From sender to receiver)
+7.  ucpResendFileHash        <xfer_id>              (From receiver to sender)
+8.  ucpAckFile               <xfer_id> (From CLI to receiver and sender)
+9.  ucpRequestStatus         <xfer_id> (From CLI to receiver and sender)
+10. ucpStatus                <xfer_id> <session_dict> (from sender/receiver to CLI)
+11. ucpAbort                 <xfer_id> (From CLI to receiver and sender)
+12. ucpGevald                <xfer_id> (From receiver to sender)
+13. ucpUnGevald              <xfer_id> (From receiver to sender)
+14. ucpSpeedUp               <xfer_id> (From receiver to sender)
+15. ucpSlowDown              <xfer_id> (From receiver to sender)
+
+UCP copy flow
+
+1. CLI initiates sender daemon
+2. Sender initiates receiver daemon
+3. Receiver forks file receiving process to receive file in the background
+4. Receiver requests file from sender
+4. Sender forks file-sending process to send file and hash in the background
+5. Receiver collects packets and assembles target file, requesting resend of corrupt parts
+6. When receiver gets the last part of a file, or times out on receive, it asks the sender to re-send any missing parts
+7. when all parts arrive, receiver computes hash and compares to hash sent from the sender.
+8. CLI keeps watch over the copy status and may compensate for lost control packets
+
